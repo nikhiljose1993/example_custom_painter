@@ -1,7 +1,16 @@
+import 'package:example_custom_painter/recipes_bloc/recipe_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MultiBlocProvider(
+    providers: [
+      BlocProvider<RecipeBloc>(
+        create: (context) => RecipeBloc()..add(FetchRecipes()),
+      ),
+    ],
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -38,12 +47,21 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[],
-        ),
-      ),
+      body: Center(child: BlocBuilder<RecipeBloc, RecipeState>(
+        builder: (context, state) {
+          return ListView.builder(
+            itemCount: state.rList.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                leading: CircleAvatar(
+                  backgroundImage: NetworkImage('${state.rList[index]!.image}'),
+                ),
+                title: Text('${state.rList[index]!.name}'),
+              );
+            },
+          );
+        },
+      )),
     );
   }
 }
